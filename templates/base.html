@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>E-Commerce Store</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 30px; line-height: 1.6; }
+        nav { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+        .nav-links a { margin-right: 15px; text-decoration: none; color: #007bff; }
+        .cart-link { text-decoration: none; font-weight: bold; color: #222; background: #f1f3f5; padding: 6px 12px; border-radius: 6px; }
+        .flash { padding: 10px; margin-bottom: 15px; border-radius: 4px; }
+        .success { background: #d4edda; color: #155724; }
+        .danger { background: #f8d7da; color: #721c24; }
+        .info { background: #d1ecf1; color: #0c5460; }
+        .card { border: 1px solid #ccc; padding: 15px; margin-bottom: 10px; border-radius: 5px; width: 250px; }
+        .card a.title-link { text-decoration: none; color: #111; }
+        .card a.title-link:hover { text-decoration: underline; }
+        table { border-collapse: collapse; width: 100%; max-width: 650px; margin-top: 15px; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
+        th { background: #f8f9fa; }
+        .bill-box { margin-top: 20px; padding: 15px; border: 1px solid #ccc; border-radius: 6px; max-width: 650px; background: #fafafa; }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="nav-links">
+            <a href="{{ url_for('home') }}">Home Store</a>
+            {% if current_user.is_authenticated %}
+                <span>Logged in as: {{ current_user.email }}</span> |
+                <a href="{{ url_for('logout') }}">Logout</a>
+            {% else %}
+                <a href="{{ url_for('login') }}">Login</a> |
+                <a href="{{ url_for('register') }}">Register</a>
+            {% endif %}
+        </div>
+        <a href="{{ url_for('cart') }}" class="cart-link" title="View Cart">🛒 Cart ({{ cart_count }})</a>
+    </nav>
+    <hr>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, msg in messages %}
+                <div class="flash {{ category }}">{{ msg }}</div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+    {% block content %}{% endblock %}
+</body>
+</html>
