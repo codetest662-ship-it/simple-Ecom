@@ -1,40 +1,93 @@
-{% extends 'base.html' %}
-{% block content %}
-<h2>Your Shopping Cart</h2>
+{% extends "base.html" %}
 
-{% if items %}
-<table>
-    <thead>
-        <tr>
-            <th>Product</th>
-            <th>Unit Price</th>
-            <th>Quantity</th>
-            <th>Subtotal</th>
-            <th>Action</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for item in items %}
-        <tr>
-            <td><a href="{{ url_for('product_detail', product_id=item.product.id) }}">{{ item.product.name }}</a></td>
-            <td>${{ "%.2f"|format(item.product.price) }}</td>
-            <td>{{ item.quantity }}</td>
-            <td>${{ "%.2f"|format(item.product.price * item.quantity) }}</td>
-            <td>
-                <form method="POST" action="{{ url_for('remove_from_cart', item_id=item.id) }}" style="display:inline;">
-                    <button type="submit">Remove</button>
-                </form>
-            </td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
+{% block title %}Cart{% endblock %}
 
-<div class="bill-box">
-    <h3>Total Bill: ${{ "%.2f"|format(total_bill) }}</h3>
+{% block body %}
+<div class="app-shell">
+  <aside class="sidebar">
+    <div class="user-profile">
+      <div class="avatar-circle" aria-hidden="true">
+        <svg viewBox="0 0 64 64" width="64" height="64">
+          <circle cx="32" cy="20" r="11" fill="#e2e2e2" />
+          <path d="M10 54c0-11.5 10-19 22-19s22 7.5 22 19v3H10v-3z" fill="#e2e2e2" />
+        </svg>
+      </div>
+      <span class="username-label">
+        {{ current_user.username if current_user is defined and current_user.is_authenticated else (username or "Username") }}
+      </span>
+    </div>
+  </aside>
+
+  <div class="main-column">
+    <header class="topbar topbar--centered-title">
+      <h1 class="topbar-title">CART</h1>
+    </header>
+
+    <main class="content-area">
+      <div class="cart-list">
+        {% if cart_items is defined and cart_items %}
+          {% for item in cart_items %}
+            <div class="cart-row">
+              <div class="cart-thumb">
+                {% if item.product.image_url %}
+                  <img src="{{ item.product.image_url }}" alt="{{ item.product.name }}" />
+                {% else %}
+                  Photo<br />of<br />product
+                {% endif %}
+              </div>
+
+              <div class="cart-details">
+                <h2 class="cart-product-title">{{ item.product.name }}</h2>
+                <div class="cart-subrow">
+                  <div class="cart-price">
+                    Price<br />{{ item.product.price }} QAR
+                  </div>
+                  <form method="POST" action="{{ url_for('update_cart', item_id=item.id) if 'update_cart' in (config.get('ROUTES', []) or []) else '' }}" class="qty-group">
+                    <label for="qty-{{ loop.index }}">Quantity</label>
+                    <input
+                      id="qty-{{ loop.index }}"
+                      type="number"
+                      name="quantity"
+                      min="0"
+                      max="100"
+                      value="{{ item.quantity }}"
+                      class="qty-input"
+                      onchange="this.form.submit()"
+                    />
+                  </form>
+                </div>
+              </div>
+            </div>
+          {% endfor %}
+        {% else %}
+          {% for _ in range(3) %}
+            <div class="cart-row">
+              <div class="cart-thumb">
+                Photo<br />of<br />product
+              </div>
+
+              <div class="cart-details">
+                <h2 class="cart-product-title">name of product</h2>
+                <div class="cart-subrow">
+                  <div class="cart-price">
+                    Price<br />QAR
+                  </div>
+                  <div class="qty-group">
+                    <label for="qty-demo-{{ loop.index }}">Quantity</label>
+                    <input
+                      id="qty-demo-{{ loop.index }}"
+                      type="text"
+                      value="000"
+                      class="qty-input"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+          {% endfor %}
+        {% endif %}
+      </div>
+    </main>
+  </div>
 </div>
-{% else %}
-<p>Your cart is empty.</p>
-<p><a href="{{ url_for('home') }}">Browse Products</a></p>
-{% endif %}
 {% endblock %}

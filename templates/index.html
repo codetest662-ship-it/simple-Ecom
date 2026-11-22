@@ -1,14 +1,85 @@
-{% extends 'base.html' %}
-{% block content %}
-<h2>Store Products</h2>
-<p>Click any product to view details and choose a quantity.</p>
-<div style="display: flex; gap: 15px; flex-wrap: wrap;">
-    {% for product in products %}
-    <div class="card">
-        <h3><a class="title-link" href="{{ url_for('product_detail', product_id=product.id) }}">{{ product.name }}</a></h3>
-        <p>Price: ${{ "%.2f"|format(product.price) }}</p>
-        <a href="{{ url_for('product_detail', product_id=product.id) }}">View Details &amp; Add to Cart</a>
+{% extends "base.html" %}
+
+{% block title %}Store{% endblock %}
+
+{% block body %}
+<div class="app-shell">
+  <aside class="sidebar">
+    <div class="user-profile">
+      <div class="avatar-circle" aria-hidden="true">
+        <svg viewBox="0 0 64 64" width="64" height="64">
+          <circle cx="32" cy="20" r="11" fill="#e2e2e2" />
+          <path d="M10 54c0-11.5 10-19 22-19s22 7.5 22 19v3H10v-3z" fill="#e2e2e2" />
+        </svg>
+      </div>
+      <span class="username-label">
+        {{ current_user.username if current_user is defined and current_user.is_authenticated else (username or "Username") }}
+      </span>
     </div>
-    {% endfor %}
+  </aside>
+
+  <div class="main-column">
+    <header class="topbar">
+      <form class="search-form" method="GET" action="{{ url_for('index') if 'index' in (config.get('ROUTES', []) or []) else '' }}">
+        <input
+          type="search"
+          name="q"
+          class="search-pill"
+          placeholder=""
+          aria-label="Search products"
+          value="{{ request.args.get('q', '') }}"
+        />
+      </form>
+
+      <a class="cart-link" href="{{ url_for('cart') if 'cart' in (config.get('ROUTES', []) or []) else '#cart' }}" aria-label="Shopping Cart">
+        <svg viewBox="0 0 36 28" width="34" height="26" fill="none" stroke="#111111" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M2 2h5l3.5 15h17l4-11H9" />
+          <circle cx="13" cy="23" r="2.2" fill="#111111" />
+          <circle cx="26" cy="23" r="2.2" fill="#111111" />
+        </svg>
+      </a>
+    </header>
+
+    <main class="content-area">
+      <div class="product-grid">
+        {% if products is defined and products %}
+          {% for product in products %}
+            <article class="product-item">
+              <div class="product-thumb">
+                {% if product.image_url %}
+                  <img src="{{ product.image_url }}" alt="{{ product.name }}" />
+                {% else %}
+                  <div class="product-placeholder-text">(Photo of<br />product)</div>
+                {% endif %}
+
+                <form class="add-to-cart-form" method="POST" action="{{ url_for('add_to_cart', product_id=product.id) if 'add_to_cart' in (config.get('ROUTES', []) or []) else '' }}">
+                  <button type="submit" class="btn-add-cart">Add To Cart</button>
+                </form>
+              </div>
+              <div class="product-meta">
+                <span class="product-name">{{ product.name }}</span>
+                <span class="product-price">{{ product.price }} QAR</span>
+              </div>
+            </article>
+          {% endfor %}
+        {% else %}
+          {% for _ in range(6) %}
+            <article class="product-item">
+              <div class="product-thumb">
+                <div class="product-placeholder-text">(Photo of<br />product)</div>
+                <form class="add-to-cart-form" method="POST" action="">
+                  <button type="submit" class="btn-add-cart">Add To Cart</button>
+                </form>
+              </div>
+              <div class="product-meta">
+                <span class="product-name">product name</span>
+                <span class="product-price">price QAR</span>
+              </div>
+            </article>
+          {% endfor %}
+        {% endif %}
+      </div>
+    </main>
+  </div>
 </div>
 {% endblock %}
