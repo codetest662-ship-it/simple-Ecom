@@ -20,7 +20,7 @@
 
   <div class="main-column">
     <header class="topbar">
-      <form class="search-form" method="GET" action="{{ url_for('index') if 'index' in (config.get('ROUTES', []) or []) else '' }}">
+      <form class="search-form" method="GET" action="/">
         <input
           type="search"
           name="q"
@@ -31,7 +31,7 @@
         />
       </form>
 
-      <a class="cart-link" href="{{ url_for('cart') if 'cart' in (config.get('ROUTES', []) or []) else '#cart' }}" aria-label="Shopping Cart">
+      <a class="cart-link" href="/cart" aria-label="Shopping Cart">
         <svg viewBox="0 0 36 28" width="34" height="26" fill="none" stroke="#111111" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M2 2h5l3.5 15h17l4-11H9" />
           <circle cx="13" cy="23" r="2.2" fill="#111111" />
@@ -52,7 +52,7 @@
                   <div class="product-placeholder-text">(Photo of<br />product)</div>
                 {% endif %}
 
-                <form class="add-to-cart-form" method="POST" action="{{ url_for('add_to_cart', product_id=product.id) if 'add_to_cart' in (config.get('ROUTES', []) or []) else '' }}">
+                <form class="add-to-cart-form" method="POST" action="/add-to-cart/{{ product.id }}">
                   <button type="submit" class="btn-add-cart">Add To Cart</button>
                 </form>
               </div>
@@ -67,7 +67,7 @@
             <article class="product-item">
               <div class="product-thumb">
                 <div class="product-placeholder-text">(Photo of<br />product)</div>
-                <form class="add-to-cart-form" method="POST" action="">
+                <form class="add-to-cart-form" method="POST" action="/add-to-cart/{{ loop.index }}">
                   <button type="submit" class="btn-add-cart">Add To Cart</button>
                 </form>
               </div>
