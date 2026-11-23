@@ -16,7 +16,7 @@
     {% endif %}
   {% endwith %}
 
-  <form class="auth-form" method="POST" action="{{ url_for('login') if 'login' in (config.get('ROUTES', []) or []) else '' }}">
+  <form class="auth-form" method="POST" action="/login">
     <input
       type="text"
       name="username"
@@ -35,7 +35,7 @@
       required
     />
 
-    <a class="forgot-link" href="{{ url_for('forgot_password') if 'forgot_password' in (config.get('ROUTES', []) or []) else '#forgot-password' }}">
+    <a class="forgot-link" href="/forgot-password">
       Forgot Password?
     </a>
 
@@ -43,7 +43,7 @@
 
     <p class="auth-footer-text">
       Don’t have an account?
-      <a href="{{ url_for('register') if 'register' in (config.get('ROUTES', []) or []) else '#register' }}">Create Account.</a>
+      <a href="/register">Create Account.</a>
     </p>
   </form>
 </main>
