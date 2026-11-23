@@ -16,7 +16,7 @@
     {% endif %}
   {% endwith %}
 
-  <form class="auth-form" method="POST" action="{{ url_for('register') if 'register' in (config.get('ROUTES', []) or []) else '' }}">
+  <form class="auth-form" method="POST" action="/register">
     <input
       type="text"
       name="username"
@@ -48,7 +48,7 @@
 
     <p class="auth-footer-text">
       Already have an account?
-      <a href="{{ url_for('login') if 'login' in (config.get('ROUTES', []) or []) else '#login' }}">Log In.</a>
+      <a href="/login">Log In.</a>
     </p>
   </form>
 </main>

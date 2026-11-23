@@ -9,6 +9,7 @@ from flask_login import (
     logout_user,
 )
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy.exc import IntegrityError
 from werkzeug.security import check_password_hash, generate_password_hash
 
 app = Flask(__name__)
@@ -154,21 +155,30 @@ def register():
 
     if request.method == "POST":
         username = request.form.get("username", "").strip()
-        email = request.form.get("email", "").strip()
+        email = request.form.get("email", "").strip().lower()
         password = request.form.get("password", "")
 
         if not username or not email or not password:
             flash("Please fill in all fields.")
             return render_template("register.html")
 
-        if User.query.filter((User.username == username) | (User.email == email)).first():
+        existing_user = User.query.filter(
+            (User.username == username) | (User.email == email)
+        ).first()
+        if existing_user:
             flash("Username or email already exists.")
             return render_template("register.html")
 
         user = User(username=username, email=email)
         user.set_password(password)
         db.session.add(user)
-        db.session.commit()
+
+        try:
+            db.session.commit()
+        except IntegrityError:
+            db.session.rollback()
+            flash("Username or email already exists.")
+            return render_template("register.html")
 
         login_user(user)
         return redirect(url_for("index"))
