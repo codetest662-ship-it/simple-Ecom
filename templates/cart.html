@@ -1,93 +1,329 @@
 {% extends "base.html" %}
 
-{% block title %}Cart{% endblock %}
+{% block title %}Your Cart — SHOP.CO{% endblock %}
 
-{% block body %}
-<div class="app-shell">
-  <aside class="sidebar">
-    <div class="user-profile">
-      <div class="avatar-circle" aria-hidden="true">
-        <svg viewBox="0 0 64 64" width="64" height="64">
-          <circle cx="32" cy="20" r="11" fill="#e2e2e2" />
-          <path d="M10 54c0-11.5 10-19 22-19s22 7.5 22 19v3H10v-3z" fill="#e2e2e2" />
-        </svg>
-      </div>
-      <span class="username-label">
-        {{ current_user.username if current_user is defined and current_user.is_authenticated else (username or "Username") }}
-      </span>
-    </div>
-  </aside>
+{% block extra_css %}
+<style>
+  .cart-page-title {
+    font-size: 38px;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: -0.8px;
+    margin-bottom: 24px;
+  }
 
-  <div class="main-column">
-    <header class="topbar topbar--centered-title">
-      <h1 class="topbar-title">CART</h1>
-    </header>
+  .cart-layout {
+    display: grid;
+    grid-template-columns: 1.45fr 0.95fr;
+    gap: 24px;
+    align-items: start;
+  }
 
-    <main class="content-area">
-      <div class="cart-list">
-        {% if cart_items is defined and cart_items %}
-          {% for item in cart_items %}
-            <div class="cart-row">
-              <div class="cart-thumb">
-                {% if item.product.image_url %}
-                  <img src="{{ item.product.image_url }}" alt="{{ item.product.name }}" />
-                {% else %}
-                  Photo<br />of<br />product
-                {% endif %}
+  .cart-items-card {
+    border: 1px solid #e5e5e5;
+    border-radius: 20px;
+    padding: 20px 24px;
+    background-color: var(--white);
+  }
+
+  .cart-item-row {
+    display: flex;
+    gap: 18px;
+    padding: 18px 0;
+    border-bottom: 1px solid #efefef;
+  }
+
+  .cart-item-row:first-child {
+    padding-top: 0;
+  }
+
+  .cart-item-row:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+  }
+
+  .cart-item-thumb {
+    width: 112px;
+    height: 112px;
+    border-radius: 14px;
+    background-color: var(--card-bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    padding: 8px;
+    text-align: center;
+    font-size: 13px;
+  }
+
+  .cart-item-thumb img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+  }
+
+  .cart-item-main {
+    flex: 1;
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .cart-item-name {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--black);
+  }
+
+  .cart-item-meta {
+    margin-top: 4px;
+    font-size: 13px;
+    color: var(--muted);
+  }
+
+  .cart-item-price {
+    margin-top: 12px;
+    font-size: 20px;
+    font-weight: 800;
+    color: var(--black);
+  }
+
+  .cart-item-controls {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    justify-content: space-between;
+  }
+
+  .remove-btn {
+    background: none;
+    border: none;
+    color: #d93829;
+    font-size: 16px;
+    cursor: pointer;
+    padding: 2px 6px;
+  }
+
+  .stepper-form {
+    display: inline-flex;
+    align-items: center;
+    background-color: #f0f0f0;
+    border-radius: 999px;
+    padding: 4px 10px;
+    gap: 10px;
+  }
+
+  .stepper-btn {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    border: none;
+    background: transparent;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--black);
+    cursor: pointer;
+  }
+
+  .stepper-val {
+    min-width: 20px;
+    text-align: center;
+    font-size: 14px;
+    font-weight: 700;
+  }
+
+  .summary-card {
+    border: 1px solid #e5e5e5;
+    border-radius: 20px;
+    padding: 24px;
+    background-color: var(--white);
+  }
+
+  .summary-title {
+    font-size: 22px;
+    font-weight: 800;
+    margin-bottom: 18px;
+  }
+
+  .summary-line {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 14px;
+    font-size: 16px;
+    color: var(--muted);
+  }
+
+  .summary-line strong {
+    color: var(--black);
+  }
+
+  .summary-discount strong {
+    color: #e53935;
+  }
+
+  .summary-total {
+    border-top: 1px solid #efefef;
+    padding-top: 16px;
+    margin-top: 6px;
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 18px;
+    font-weight: 700;
+  }
+
+  .summary-total strong {
+    font-size: 22px;
+    font-weight: 900;
+  }
+
+  .promo-row {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+
+  .promo-input {
+    flex: 1;
+    height: 44px;
+    border-radius: 999px;
+    border: none;
+    background-color: #f0f0f0;
+    padding: 0 18px;
+    font-size: 14px;
+  }
+
+  .btn-apply {
+    height: 44px;
+    padding: 0 24px;
+    border-radius: 999px;
+    border: none;
+    background-color: var(--black);
+    color: var(--white);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  .btn-checkout {
+    width: 100%;
+    height: 50px;
+    border-radius: 999px;
+    border: none;
+    background-color: var(--black);
+    color: var(--white);
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  @media (max-width: 900px) {
+    .cart-layout {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+  <nav class="breadcrumb" aria-label="Breadcrumb">
+    <a href="/">Home</a>
+    <span>&gt;</span>
+    <span class="current">Cart</span>
+  </nav>
+
+  <h1 class="cart-page-title">YOUR CART</h1>
+
+  {% if cart_items is defined and cart_items %}
+    {% set ns = namespace(subtotal=0) %}
+    {% for item in cart_items %}
+      {% set ns.subtotal = ns.subtotal + (item.product.price * item.quantity) %}
+    {% endfor %}
+    {% set discount_amt = (ns.subtotal * 20) // 100 %}
+    {% set delivery_fee = 15 %}
+    {% set final_total = ns.subtotal - discount_amt + delivery_fee %}
+
+    <div class="cart-layout">
+      <div class="cart-items-card">
+        {% for item in cart_items %}
+          <div class="cart-item-row">
+            <div class="cart-item-thumb">
+              {% if item.product.image_url %}
+                <img src="{{ item.product.image_url }}" alt="{{ item.product.name }}" />
+              {% else %}
+                <span>{{ item.product.name }}</span>
+              {% endif %}
+            </div>
+
+            <div class="cart-item-main">
+              <div>
+                <div class="cart-item-name">{{ item.product.name }}</div>
+                <div class="cart-item-meta">Size: Large</div>
+                <div class="cart-item-meta">Color: Standard</div>
+                <div class="cart-item-price">{{ item.product.price }} QAR</div>
               </div>
 
-              <div class="cart-details">
-                <h2 class="cart-product-title">{{ item.product.name }}</h2>
-                <div class="cart-subrow">
-                  <div class="cart-price">
-                    Price<br />{{ item.product.price }} QAR
-                  </div>
-                  <form method="POST" action="{{ url_for('update_cart', item_id=item.id) if 'update_cart' in (config.get('ROUTES', []) or []) else '' }}" class="qty-group">
-                    <label for="qty-{{ loop.index }}">Quantity</label>
-                    <input
-                      id="qty-{{ loop.index }}"
-                      type="number"
-                      name="quantity"
-                      min="0"
-                      max="100"
-                      value="{{ item.quantity }}"
-                      class="qty-input"
-                      onchange="this.form.submit()"
-                    />
+              <div class="cart-item-controls">
+                <form method="POST" action="/cart/update/{{ item.id }}">
+                  <input type="hidden" name="quantity" value="0" />
+                  <button type="submit" class="remove-btn" title="Remove item" aria-label="Remove {{ item.product.name }}">&#128465;</button>
+                </form>
+
+                <div class="stepper-form">
+                  <form method="POST" action="/cart/update/{{ item.id }}">
+                    <input type="hidden" name="quantity" value="{{ item.quantity - 1 }}" />
+                    <button type="submit" class="stepper-btn" aria-label="Decrease quantity">&minus;</button>
+                  </form>
+
+                  <span class="stepper-val">{{ item.quantity }}</span>
+
+                  <form method="POST" action="/cart/update/{{ item.id }}">
+                    <input type="hidden" name="quantity" value="{{ item.quantity + 1 if item.quantity < 100 else 100 }}" />
+                    <button type="submit" class="stepper-btn" aria-label="Increase quantity">+</button>
                   </form>
                 </div>
               </div>
             </div>
-          {% endfor %}
-        {% else %}
-          {% for _ in range(3) %}
-            <div class="cart-row">
-              <div class="cart-thumb">
-                Photo<br />of<br />product
-              </div>
-
-              <div class="cart-details">
-                <h2 class="cart-product-title">name of product</h2>
-                <div class="cart-subrow">
-                  <div class="cart-price">
-                    Price<br />QAR
-                  </div>
-                  <div class="qty-group">
-                    <label for="qty-demo-{{ loop.index }}">Quantity</label>
-                    <input
-                      id="qty-demo-{{ loop.index }}"
-                      type="text"
-                      value="000"
-                      class="qty-input"
-                    />
-                  </div>
-                </div>
-              </div>
-            </div>
-          {% endfor %}
-        {% endif %}
+          </div>
+        {% endfor %}
       </div>
-    </main>
-  </div>
+
+      <aside class="summary-card">
+        <h2 class="summary-title">Order Summary</h2>
+        <div class="summary-line">
+          <span>Subtotal</span>
+          <strong>{{ ns.subtotal }} QAR</strong>
+        </div>
+        <div class="summary-line summary-discount">
+          <span>Discount (-20%)</span>
+          <strong>-{{ discount_amt }} QAR</strong>
+        </div>
+        <div class="summary-line">
+          <span>Delivery Fee</span>
+          <strong>{{ delivery_fee }} QAR</strong>
+        </div>
+        <div class="summary-total">
+          <span>Total</span>
+          <strong>{{ final_total }} QAR</strong>
+        </div>
+
+        <form class="promo-row" method="POST" action="/cart">
+          <input type="text" name="promo_code" class="promo-input" placeholder="Add promo code" aria-label="Promo code" />
+          <button type="submit" class="btn-apply">Apply</button>
+        </form>
+
+        <form method="POST" action="/checkout">
+          <button type="submit" class="btn-checkout">Go to Checkout &rarr;</button>
+        </form>
+      </aside>
+    </div>
+  {% else %}
+    <div class="cart-items-card">
+      <p>Your cart is currently empty. <a href="/" style="text-decoration: underline; font-weight: 700;">Continue shopping</a>.</p>
+    </div>
+  {% endif %}
 </div>
 {% endblock %}

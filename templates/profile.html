@@ -1,0 +1,133 @@
+{% extends "base.html" %}
+
+{% block title %}My Profile — SHOP.CO{% endblock %}
+
+{% block extra_css %}
+<style>
+  .profile-card {
+    max-width: 600px;
+    margin: 40px auto;
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 36px;
+    background-color: var(--white);
+  }
+  .profile-header {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    padding-bottom: 24px;
+    border-bottom: 1px solid #efefef;
+  }
+  .profile-avatar {
+    width: 90px;
+    height: 90px;
+    border-radius: 50%;
+    object-fit: cover;
+    background-color: var(--card-bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--muted);
+    border: 2px solid var(--black);
+  }
+  .profile-info h1 {
+    font-size: 24px;
+    font-weight: 800;
+  }
+  .profile-info p {
+    color: var(--muted);
+    font-size: 14px;
+  }
+  .rewards-box {
+    margin-top: 24px;
+    background-color: #f0f0f0;
+    border-radius: 16px;
+    padding: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .rewards-title {
+    font-size: 14px;
+    color: var(--muted);
+    text-transform: uppercase;
+    font-weight: 700;
+  }
+  .rewards-pts {
+    font-size: 28px;
+    font-weight: 900;
+    color: var(--black);
+  }
+  .rewards-val {
+    font-size: 13px;
+    color: #008800;
+    font-weight: 700;
+  }
+  .profile-actions {
+    margin-top: 28px;
+    display: flex;
+    gap: 12px;
+  }
+  .btn-edit {
+    flex: 1;
+    height: 44px;
+    border-radius: 999px;
+    border: 1px solid var(--black);
+    background-color: var(--black);
+    color: var(--white);
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .btn-logout {
+    flex: 1;
+    height: 44px;
+    border-radius: 999px;
+    border: 1px solid #cccccc;
+    background-color: var(--white);
+    color: var(--black);
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+  <div class="profile-card">
+    <div class="profile-header">
+      {% if current_user.profile_pic %}
+        <img src="{{ current_user.profile_pic }}" alt="Profile Picture" class="profile-avatar" />
+      {% else %}
+        <div class="profile-avatar">{{ current_user.username[0]|upper }}</div>
+      {% endif %}
+      <div class="profile-info">
+        <h1>{{ current_user.username }}</h1>
+        <p>{{ current_user.email }}</p>
+      </div>
+    </div>
+
+    <div class="rewards-box">
+      <div>
+        <div class="rewards-title">Shop Rewards Balance</div>
+        <div class="rewards-pts">{{ current_user.shop_rewards }} PTS</div>
+        <div class="rewards-val">Worth {{ current_user.reward_value_qar }} QAR (1 PTS = 0.1 QAR)</div>
+      </div>
+      <div style="font-size: 12px; color: var(--muted); text-align: right;">
+        1 QAR Spent = 1 Shop Reward
+      </div>
+    </div>
+
+    <div class="profile-actions">
+      <a href="/profile/edit" class="btn-edit">Edit Profile</a>
+      <a href="/logout" class="btn-logout">Log Out</a>
+    </div>
+  </div>
+</div>
+{% endblock %}
